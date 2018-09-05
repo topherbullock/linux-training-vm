@@ -1,0 +1,63 @@
+---
+name: linux-training-vm
+
+releases:
+- name: os-conf
+  version: 12
+  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=12
+  sha1: af5a2c9f228b9d7ec4bd051d71fef0e712fa1549
+
+resource_pools:
+- name: vms
+  network: default
+  env:
+    bosh:
+      password: '*'
+
+disk_pools:
+- name: disks
+  disk_size: 32_768
+
+networks:
+- name: default
+  type: manual
+  subnets:
+  - range: ((internal_cidr))
+    gateway: ((internal_gw))
+    static_ips: ((public_ip))
+    dns: [8.8.8.8]
+
+instance_groups:
+- name: vm
+  instances: 1
+  resource_pool: vms
+  persistent_disk_pool: disks
+  networks:
+  - name: default
+    default: [gateway,dns]
+  jobs:
+  - name: user_add
+    release: os-conf
+    properties:
+      users:
+      - name: jumpbox
+        public_key: ((jumpbox_ssh.public_key))
+
+cloud_provider:
+  mbus: https://mbus:((mbus_bootstrap_password))@((public_ip)):6868
+  properties:
+    agent: {mbus: "https://mbus:((mbus_bootstrap_password))@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp:
+    - time1.google.com
+    - time2.google.com
+    - time3.google.com
+    - time4.google.com
+
+variables:
+- name: mbus_bootstrap_password
+  type: password
+- name: postgres_password
+  type: password
+- name: jumpbox_ssh
+  type: ssh

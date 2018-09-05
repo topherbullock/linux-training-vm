@@ -1,0 +1,12 @@
+#!/bin/bash
+# vim: set ft=sh
+set -ex
+ROOT_DIR=$(cd $(dirname $(dirname $0)) && pwd)
+
+pushd $ROOT_DIR
+  mktemp jumpbox_ssh
+  chmod 600 jumpbox_ssh
+  bosh int $ROOT_DIR/creds.yml --path "/jumpbox_ssh/private_key" > jumpbox_ssh
+  ssh jumpbox@192.168.100.4 -i jumpbox_ssh
+  trap "rm $ROOT_DIR/jumpbox_ssh" EXIT
+popd
