@@ -1,0 +1,21 @@
+#!/bin/bash
+set -ex
+
+ROOT_DIR=$(cd $(dirname $(dirname $0)) && pwd)
+
+mktemp jumpbox_ssh
+trap "rm $ROOT_DIR/jumpbox_ssh" EXIT
+chmod 600 jumpbox_ssh
+
+bosh int $ROOT_DIR/creds.yml --path "/jumpbox_ssh/private_key" > jumpbox_ssh
+
+ssh -tt jumpbox@192.168.100.4 -i jumpbox_ssh << EOF
+sudo su -
+  echo 'deb http://ftp.de.debian.org/debian sid main' >> /etc/apt/sources.list
+  apt-get update
+  apt-get install -o Dpkg::Options::="--force-confdef" --allow-unauthenticated -y util-linux vim
+  exit
+exit
+EOF
+# add debian.org source to get the latest util-linux (stemcell has 2.27.x)
+# ssh -t jumpbox@192.168.100.4 -i jumpbox_ssh "sudo echo \"deb http://ftp.de.debian.org/debian sid main\" > /etc/apt/sources.list"

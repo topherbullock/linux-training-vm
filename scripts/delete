@@ -3,7 +3,7 @@
 ROOT_DIR=$(cd $(dirname $(dirname $0)) && pwd)
 
 pushd $ROOT_DIR
-bosh create-env vm.yml \
+bosh delete-env vm.yml \
   -o ./infrastructures/virtualbox.yml \
   --vars-store creds.yml \
   --state state.json \
@@ -12,4 +12,4 @@ bosh create-env vm.yml \
   -v public_ip=192.168.100.4
 popd
 
-$ROOT_DIR/scripts/configure
+ssh-keygen -R 192.168.100.4
