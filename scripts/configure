@@ -13,7 +13,8 @@ ssh -tt jumpbox@192.168.100.4 -i jumpbox_ssh << EOF
 sudo su -
   echo 'deb http://ftp.de.debian.org/debian sid main' >> /etc/apt/sources.list
   apt-get update
-  apt-get install -o Dpkg::Options::="--force-confdef" --allow-unauthenticated -y util-linux vim
+  apt-get install -o Dpkg::Options::="--force-confdef" --allow-unauthenticated -y util-linux vim libacl1-dev libselinux1-dev
+  chsh -s /bin/bash jumpbox
   exit
 exit
 EOF
