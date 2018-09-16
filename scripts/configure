@@ -1,22 +1,18 @@
 #!/bin/bash
 set -ex
+apt-get update
 
-ROOT_DIR=$(cd $(dirname $(dirname $0)) && pwd)
+# install dev stuff
+apt-get install -y neovim golang git
 
-mktemp jumpbox_ssh
-trap "rm $ROOT_DIR/jumpbox_ssh" EXIT
-chmod 600 jumpbox_ssh
+# install python junk for vimfiles
+apt-get install -y python-pip python-dev build-essential
+pip install --upgrade pip
 
-bosh int $ROOT_DIR/creds.yml --path "/jumpbox_ssh/private_key" > jumpbox_ssh
+# install lib*-dev requirements
+apt-get install -y util-linux libacl1-dev libselinux1-dev
 
-ssh -tt jumpbox@192.168.100.4 -i jumpbox_ssh << EOF
-sudo su -
-  echo 'deb http://ftp.de.debian.org/debian sid main' >> /etc/apt/sources.list
-  apt-get update
-  apt-get install -o Dpkg::Options::="--force-confdef" --allow-unauthenticated -y util-linux vim libacl1-dev libselinux1-dev
-  chsh -s /bin/bash jumpbox
-  exit
-exit
-EOF
-# add debian.org source to get the latest util-linux (stemcell has 2.27.x)
-# ssh -t jumpbox@192.168.100.4 -i jumpbox_ssh "sudo echo \"deb http://ftp.de.debian.org/debian sid main\" > /etc/apt/sources.list"
+git clone https://github.com/luan/vimfiles.git ~/vimfiles
+pushd ~/vimfiles
+  ./bin/install --non-interactive
+popd

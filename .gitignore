@@ -1,3 +1,2 @@
-*creds.yml
-*state.json
-jumpbox_ssh
+.vagrant/
+*.log
