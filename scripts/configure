@@ -16,3 +16,5 @@ git clone https://github.com/luan/vimfiles.git ~/vimfiles
 pushd ~/vimfiles
   ./bin/install --non-interactive
 popd
+
+export GOPATH=/workspace/go/
